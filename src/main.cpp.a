@@ -1,0 +1,17 @@
+#include <Arduino.h>
+#include "utils/Config.h"  // 設定ファイルのインクルード
+
+char current_char = 'a';
+
+void setup() {
+  Serial1.begin(115200, SERIAL_8N1, UART_RX, UART_TX);
+  Serial.begin(115200);
+}
+
+void loop() {
+  // 1秒おきにaからzまで送る
+  Serial1.write(current_char);
+  Serial.println(current_char);
+  current_char ++;
+  delay(1000);
+}

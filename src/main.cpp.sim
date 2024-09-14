@@ -1,0 +1,22 @@
+#include <Arduino.h>
+#include "utils/Config.h"  // 設定ファイルのインクルード
+
+void setup() {
+  // UART通信の初期化（Raspberry Piとの通信）
+  Serial1.begin(UART_BAUD_RATE, SERIAL_8N1, UART_RX, UART_TX);
+
+  // デバッグ用シリアル（PCとの通信）
+  Serial.begin(115200);
+  Serial.println("Setup complete. Ready to receive commands.");
+}
+
+void loop() {
+  // Serial1からデータを受信した場合
+  if (Serial1.available()) {
+    char cmd = Serial1.read();   // 受信データを読み取る
+    Serial1.print(cmd);          // 受信したデータをそのまま返す
+    Serial.printf("Received and returned: %c\n", cmd);  // デバッグ出力
+  }
+}
+
+//simple test

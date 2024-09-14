@@ -1,0 +1,23 @@
+#include <Arduino.h>
+#include "utils/Config.h"
+
+void setup() {
+    Serial.begin(115200);
+    Serial1.begin(9600, SERIAL_8N1, UART_RX, UART_TX);
+    Serial.println("setup done");
+}
+
+void loop() {
+    if (Serial1.available()) {
+        char cmd = Serial1.read();
+        Serial.print("Received: ");
+        Serial.println(cmd);
+    }
+    if (Serial.available()) {
+        char cmd = Serial.read();
+        Serial.print("Input: ");
+        Serial.println(cmd);
+        Serial1.print(cmd);
+    }
+    delay(10);
+}

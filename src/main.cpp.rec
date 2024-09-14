@@ -1,0 +1,42 @@
+#include <Arduino.h>
+#include "utils/Config.h"  // 設定ファイルのインクルード
+
+unsigned long lastSendTime = 0;  // 最後にコマンドを送信した時間を記録
+const unsigned long sendInterval = 5000;  // コマンド送信の間隔（5秒）
+bool waitingForResponse = false;  // 応答待ち状態のフラグ
+
+void setup() {
+  // UART通信の初期化（Raspberry Piとの通信）
+  Serial1.begin(UART_BAUD_RATE, SERIAL_8N1, UART_RX, UART_TX);
+
+  // デバッグ用シリアル（PCとの通信）
+  Serial.begin(115200);  // シリアルモニタの初期化
+  while (!Serial) {
+    ; // シリアル接続が確立するまで待機
+  }
+
+  Serial.println("Setup complete. Ready to send commands.");
+}
+
+void loop() {
+  // 定期的にコマンドを送信する（5秒ごと）
+  if (millis() - lastSendTime >= sendInterval && !waitingForResponse) {
+    Serial1.println("Hello, Raspberry Pi!");  // コマンドをRaspberry Piに送信
+    Serial.println("Sent: Hello, Raspberry Pi!");  // 送信内容をデバッグ表示
+    lastSendTime = millis();  // 最後の送信時間を更新
+    waitingForResponse = true;  // 応答待ち状態にする
+  }
+
+  // Raspberry Piからの応答を確認
+  if (waitingForResponse && Serial1.available()) {
+    String response = Serial1.readString();  // 受信データを読み取る
+    Serial.println("Received from Raspberry Pi: " + response);  // 応答を表示
+    waitingForResponse = false;  // 応答を受信したのでフラグをリセット
+  }
+
+  // 応答がなく、一定時間経過した場合は "No command" を表示
+  if (waitingForResponse && (millis() - lastSendTime >= 1000)) {
+    Serial.println("No command");  // 応答がなかった場合のメッセージ
+    waitingForResponse = false;  // 応答待ちフラグをリセット
+  }
+}
